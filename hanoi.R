@@ -1,6 +1,9 @@
-
+library(dplyr)
+library(ggplot2)
+library(purrr)
 toa <- R6::R6Class(
     classname = "toa",
+    # values
     public = list(
         pieces = list(
             "A" = list(),
@@ -9,6 +12,10 @@ toa <- R6::R6Class(
         ),
         n_piecies = 0,
         colors = RColorBrewer::brewer.pal(10,"Set3"),
+        solution = c(),
+        solution_l = list(),
+        current_step = 1,
+        # public methods
         initialize = function(number_of_pieces){
             stopifnot(is.integer(number_of_pieces))
             stopifnot(number_of_pieces > 0 & number_of_pieces <= 10)
@@ -16,6 +23,12 @@ toa <- R6::R6Class(
                 1:number_of_pieces,~list(size = .x,color = self$colors[.x])
             ) %>% setNames(1:number_of_pieces)
             self$n_piecies = number_of_pieces
+            self$solution = self$steps()
+            self$solution_l <- purrr::map(self$solution, function(string){
+                from <- stringr::str_extract(string,"(?<=from ).(?= to)")
+                to <- stringr::str_extract(string,"(?<=to ).$")
+                return(c(from = from,to = to))
+            })
             invisible(self)
         },
         piece_move_to = function(f,t){
@@ -34,11 +47,19 @@ toa <- R6::R6Class(
                 )
             )
         },
+        advance = function(){
+            if(self$current_step <= length(self$solution)){
+                next_step <- self$solution_l[[self$current_step]]
+                self$piece_move_to(next_step["from"],next_step["to"])
+                self$current_step <- self$current_step + 1
+            }
+            invisible(self)
+        },
         snapeshot = function(){
             width_multiplier <- 0.04
             state = testdf <- 
-                map2_df(self$pieces,names(self$pieces), function(pieces,name){
-                map_df(pieces,function(x){
+                purrr::map2_df(self$pieces,names(self$pieces), function(pieces,name){
+                purrr::map_df(pieces,function(x){
                     tibble::tibble(
                         size = x$size,
                         fill = x$color,
@@ -101,3 +122,4 @@ toa <- R6::R6Class(
         }
     )
 )
+

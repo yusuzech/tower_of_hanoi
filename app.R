@@ -6,7 +6,6 @@ library(purrr)
 library(tibble)
 library(dplyr)
 library(ggplot2)
-
 source("hanoi.R")
 ui <- fluidPage(
   sidebarLayout(
@@ -37,35 +36,26 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
     hanoi <- reactiveVal()
-    hanoi_result <- reactiveVal()
-    step_count <- reactiveVal()
+    reactiveCounter <- reactiveVal(1)
     observeEvent(input$hanoi_n,{
         hanoi(toa$new(as.integer(input$hanoi_n)))
-        hanoi_result(hanoi()$steps())
-        step_count(1)
     })
     
     observeEvent(input$nextStep,{
-      if(step_count() <= length(hanoi_result())){
-        instruction <- hanoi_result()[step_count()]
-        from <- stringr::str_extract(instruction,"(?<=from ).(?= to)")
-        to <- stringr::str_extract(instruction,"(?<=to ).$")
-        hanoi()$piece_move_to(from,to)
-        step_count_new <- step_count() + 1
-        step_count(step_count_new)
-      }
-        
+      hanoi()$advance()
+      newVal <- reactiveCounter() + 1
+      reactiveCounter(newVal)
     })
     
     observe({
-        req(step_count())
+        req(reactiveCounter())
         #update hints
         output$hint <- renderUI({
             HTML(
                 glue::glue(
-                    "<span>Step {step_count() - 1} of {length(hanoi_result())}</span>",
+                    "<span>Step {hanoi()$current_step - 1} of {length(hanoi()$solution)}</span>",
                     "<br>",
-                    "<span>Next Step:{hanoi_result()[step_count()]}</span>"
+                    "<span>Next Step:{hanoi()$solution[hanoi()$current_step]}</span>"
                 )
             )
         })
