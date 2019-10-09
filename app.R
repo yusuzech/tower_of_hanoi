@@ -46,12 +46,14 @@ server <- function(input, output, session) {
     })
     
     observeEvent(input$nextStep,{
+      if(step_count() <= length(hanoi_result())){
         instruction <- hanoi_result()[step_count()]
         from <- stringr::str_extract(instruction,"(?<=from ).(?= to)")
         to <- stringr::str_extract(instruction,"(?<=to ).$")
         hanoi()$piece_move_to(from,to)
         step_count_new <- step_count() + 1
         step_count(step_count_new)
+      }
         
     })
     
@@ -61,7 +63,7 @@ server <- function(input, output, session) {
         output$hint <- renderUI({
             HTML(
                 glue::glue(
-                    "<span>Step {step_count()} of {length(hanoi_result())}</span>",
+                    "<span>Step {step_count() - 1} of {length(hanoi_result())}</span>",
                     "<br>",
                     "<span>Next Step:{hanoi_result()[step_count()]}</span>"
                 )
