@@ -24,11 +24,12 @@ ui <- fluidPage(
                   offset = 6,
                   actionButton("nextStep","Next",width = "100%")
               )
-          )
+          ),
+          tags$h3("Move from A to C")
       ),
       mainPanel(
-          plotOutput("graph"),
-          uiOutput("hint")
+          uiOutput("hint"),
+          plotOutput("graph")
       )
           
   )

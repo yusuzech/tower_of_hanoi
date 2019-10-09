@@ -102,6 +102,8 @@ toa <- R6::R6Class(
                     color = "black"
                 ) +
                 coord_fixed(ratio = 0.1) +
+                xlim(c(0.5,3.5)) +
+                ylim(c(-1,11)) +
                 theme_void() +
                 guides(fill = FALSE)
             return(p)
