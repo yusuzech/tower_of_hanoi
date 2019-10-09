@@ -55,6 +55,14 @@ toa <- R6::R6Class(
             }
             invisible(self)
         },
+        rollback = function(){
+            if(self$current_step > 1){
+                previous_step <- self$solution_l[[self$current_step - 1]]
+                self$piece_move_to(previous_step["to"],previous_step["from"])
+                self$current_step <- self$current_step - 1
+            }
+            invisible(self)
+        },
         snapeshot = function(){
             width_multiplier <- 0.04
             state = testdf <- 

@@ -21,11 +21,14 @@ ui <- fluidPage(
           fluidRow(
               column(
                   width = 6,
-                  offset = 6,
+                  actionButton("previousStep","Previous",width = "100%")
+              ),
+              column(
+                  width = 6,
                   actionButton("nextStep","Next",width = "100%")
               )
           ),
-          tags$h3("Move from A to C")
+          tags$h4("Goal: Move all disks from A to C")
       ),
       mainPanel(
           uiOutput("hint"),
@@ -44,6 +47,12 @@ server <- function(input, output, session) {
     
     observeEvent(input$nextStep,{
       hanoi()$advance()
+      newVal <- reactiveCounter() + 1
+      reactiveCounter(newVal)
+    })
+    
+    observeEvent(input$previousStep,{
+      hanoi()$rollback()
       newVal <- reactiveCounter() + 1
       reactiveCounter(newVal)
     })
